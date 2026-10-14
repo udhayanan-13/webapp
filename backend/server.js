@@ -1,5 +1,5 @@
 const express = require("express");
-const mongoose = require("mongoose");
+const mysql = require("mysql2");
 const cors = require("cors");
 
 const app = express();
@@ -7,36 +7,38 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// MongoDB Atlas connection
-mongoose.connect("mongodb+srv://dhanshree_db_user:dhanu666@cluster0.qp4k9nz.mongodb.net/webdemo?appName=Cluster0")
-    .then(() => {
-        console.log("MongoDB Atlas connected");
-    })
-    .catch((err) => {
-        console.log("MongoDB connection error:", err);
+const db = mysql.createConnection({
+    host: "localhost",
+    user: "root",
+    password: "",
+    database: "webdemo"
+});
+
+db.connect((err) => {
+    if (err) throw err;
+    console.log("MySQL Connected");
+});
+
+app.get("/volunteers", (req, res) => {
+    db.query("SELECT * FROM volunteers", (err, result) => {
+        if (err) throw err;
+        res.json(result);
     });
-
-// Volunteer Schema
-const Volunteer = mongoose.model("Volunteer", {
-    name: String,
-    city: String,
-    experience: String
 });
 
-// Get volunteers
-app.get("/volunteers", async (req, res) => {
-    const volunteers = await Volunteer.find();
-    res.json(volunteers);
+app.post("/volunteers", (req, res) => {
+    const { name, city, experience } = req.body;
+
+    db.query(
+        "INSERT INTO volunteers (name, city, experience) VALUES (?, ?, ?)",
+        [name, city, experience],
+        (err, result) => {
+            if (err) throw err;
+            res.json({ id: result.insertId, name, city, experience });
+        }
+    );
 });
 
-// Add volunteer
-app.post("/volunteers", async (req, res) => {
-    const volunteer = new Volunteer(req.body);
-    await volunteer.save();
-    res.json(volunteer);
-});
-
-// Start server
 app.listen(5000, () => {
-    console.log("Server running at http://localhost:5000");
+    console.log("Server running on port 5000");
 });

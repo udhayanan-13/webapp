@@ -1,0 +1,10 @@
+netstat -ano | findstr :3306
+tasklist /FI "PID eq 1234"
+
+npm.cmd install
+npm.cmd install express mysql2 cors
+
+node server.js
+
+python -m pip install selenium
+python test_rescueconnect.py

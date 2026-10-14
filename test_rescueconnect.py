@@ -51,7 +51,7 @@ def find_visible_input(placeholder):
 
 
 def test_application_open():
-    driver.get("http://localhost:5500/index.html")
+    driver.get("http://localhost:5500/frontend/index.html")
     driver.maximize_window()
 
     wait.until(
